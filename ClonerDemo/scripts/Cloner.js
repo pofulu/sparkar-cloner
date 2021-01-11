@@ -2,7 +2,7 @@
  * @author Pofu Lu
  * @email pofu.lu@outlook.com
  * @create date 2021-01-10 22:48:00
- * @modify date 2021-01-10 22:48:00
+ * @modify date 2021-01-11 23:27:29
  * @desc v0.1.0
  */
 
@@ -27,11 +27,11 @@ async function setBlock(block) {
         hide,
         prefix,
         inputs,
-        outputs,
+        outputs,    // TODO?: bridge the outputs value
         index,
-        start_position,
-        start_scale,
-        start_rotation,
+        position,
+        scale,
+        rotation,
     ] = await Promise.all([
         block.outputs.getString('Block Name'),
         block.outputs.getString('Parent Name'),
@@ -42,34 +42,79 @@ async function setBlock(block) {
         block.outputs.getString('Inputs'),
         block.outputs.getString('Outputs'),
         block.outputs.getScalar('Control Index'),
-        block.outputs.getPoint('Start Position'),
-        block.outputs.getPoint('Start Scale'),
-        block.outputs.getPoint('Start Rotation'),
+        block.outputs.getPoint('Position'),
+        block.outputs.getPoint('Scale'),
+        block.outputs.getPoint('Rotation'),
     ]);
 
     let subscriptions = [];
     let children = [];
     let currentIndex = 0;
     let isInstantiating = true;
+
     const waitInstantiating = () => new Promise(resolve => {
         (function waitForFoo() {
-            if (!isInstantiating) return resolve();
+            if (!isInstantiating) {
+                return resolve();
+            }
+
             Time.setTimeout(waitForFoo, 30);
         })();
     });
 
-    const onInstantiate = instance => {
-        instance.transform.x = start_position.x.pinLastValue();
-        instance.transform.y = start_position.y.pinLastValue();
-        instance.transform.z = start_position.z.pinLastValue();
+    const instantiatingFirst = async () => {
+        await lateUpdateSignalAsync(Time.ms);
 
-        instance.transform.scaleX = start_scale.x.pinLastValue();
-        instance.transform.scaleY = start_scale.y.pinLastValue();
-        instance.transform.scaleZ = start_scale.z.pinLastValue();
+        if (isInstantiating) {
+            await waitInstantiating();
+        }
+    }
 
-        instance.transform.rotationX = start_rotation.x.pinLastValue();
-        instance.transform.rotationY = start_rotation.y.pinLastValue();
-        instance.transform.rotationZ = start_rotation.z.pinLastValue();
+    const onInstantiate = async instance => {
+        const getTargetInstance = () => {
+            const indexValue = index.pinLastValue();
+            if (indexValue == -2) {
+                return instance;
+            } else if (indexValue == -1) {
+                return children[currentIndex];
+            } else {
+                return children[indexValue];
+            }
+        }
+
+        const eventSource = Reactive.monitorMany({
+            x: position.x,
+            y: position.y,
+            z: position.z,
+            scaleX: scale.x,
+            scaleY: scale.y,
+            scaleZ: scale.z,
+            rotationX: rotation.x,
+            rotationY: rotation.y,
+            rotationZ: rotation.z,
+        }, { fireOnInitialValue: true }).select('newValues');
+
+        eventSource.subscribe(async values => {
+            if (block.hidden.pinLastValue()) return;
+
+            await instantiatingFirst();
+
+            const blockInstance = getTargetInstance();
+
+            if (blockInstance != undefined) {
+                blockInstance.transform.x = values.x;
+                blockInstance.transform.y = values.y;
+                blockInstance.transform.z = values.z;
+                blockInstance.transform.scaleX = values.scaleX;
+                blockInstance.transform.scaleY = values.scaleY;
+                blockInstance.transform.scaleZ = values.scaleZ;
+                blockInstance.transform.rotationX = values.rotationX;
+                blockInstance.transform.rotationY = values.rotationY;
+                blockInstance.transform.rotationZ = values.rotationZ;
+            }
+        });
+
+        await new Promise(resovle => eventSource.take(1).subscribe(resovle));
     };
 
     const setInputs = async (instance, prefix, map) => {
@@ -94,7 +139,6 @@ async function setBlock(block) {
         }
 
         let setScalarSubscription;
-
         const setScalar = async () => {
             try {
                 if (setScalarSubscription != undefined) {
@@ -103,9 +147,8 @@ async function setBlock(block) {
                 }
                 const signal = await Patches.outputs.getScalar(patchProperty);
                 setScalarSubscription = signal.monitor({ fireOnInitialValue: true }).select('newValue').subscribe(async v => {
-                    if (isInstantiating) {
-                        await waitInstantiating();
-                    }
+                    if (block.hidden.pinLastValue()) return;
+                    await instantiatingFirst();
 
                     const blockInstance = getTargetInstance();
                     if (blockInstance != undefined) {
@@ -125,9 +168,8 @@ async function setBlock(block) {
                 }
                 const signal = await Patches.outputs.getBoolean(patchProperty);
                 setBooleanSubscription = signal.monitor({ fireOnInitialValue: true }).select('newValue').subscribe(async v => {
-                    if (isInstantiating) {
-                        await waitInstantiating();
-                    }
+                    if (block.hidden.pinLastValue()) return;
+                    await instantiatingFirst();
 
                     const blockInstance = getTargetInstance();
                     if (blockInstance != undefined) {
@@ -147,9 +189,8 @@ async function setBlock(block) {
                 }
                 const signal = await Patches.outputs.getString(patchProperty);
                 setStringSubscription = signal.monitor({ fireOnInitialValue: true }).select('newValue').subscribe(async v => {
-                    if (isInstantiating) {
-                        await waitInstantiating();
-                    }
+                    if (block.hidden.pinLastValue()) return;
+                    await instantiatingFirst();
 
                     const blockInstance = getTargetInstance();
                     if (blockInstance != undefined) {
@@ -177,9 +218,9 @@ async function setBlock(block) {
                 }, { fireOnInitialValue: true }).select('newValues');
 
                 setColorSubscription = eventSource.subscribe(async values => {
-                    if (isInstantiating) {
-                        await waitInstantiating();
-                    }
+                    if (block.hidden.pinLastValue()) return;
+                    await instantiatingFirst();
+
                     const blockInstance = getTargetInstance();
                     if (blockInstance != undefined) {
                         blockInstance.inputs.setColor(blockProperty, Reactive.RGBA(values.x, values.y, values.z, values.w));
@@ -205,9 +246,8 @@ async function setBlock(block) {
                 }, { fireOnInitialValue: true }).select('newValues');
 
                 setVectorSubscription = eventSource.subscribe(async values => {
-                    if (isInstantiating) {
-                        await waitInstantiating();
-                    }
+                    if (block.hidden.pinLastValue()) return;
+                    await instantiatingFirst();
 
                     const blockInstance = getTargetInstance();
                     if (blockInstance != undefined) {
@@ -233,9 +273,8 @@ async function setBlock(block) {
                 }, { fireOnInitialValue: true }).select('newValues');
 
                 setPointSubscription = eventSource.subscribe(async values => {
-                    if (isInstantiating) {
-                        await waitInstantiating();
-                    }
+                    if (block.hidden.pinLastValue()) return;
+                    await instantiatingFirst();
 
                     const blockInstance = getTargetInstance();
                     if (blockInstance != undefined) {
@@ -260,9 +299,8 @@ async function setBlock(block) {
                 }, { fireOnInitialValue: true }).select('newValues');
 
                 setPoint2DSubscription = eventSource.subscribe(async values => {
-                    if (isInstantiating) {
-                        await waitInstantiating();
-                    }
+                    if (block.hidden.pinLastValue()) return;
+                    await instantiatingFirst();
 
                     const blockInstance = getTargetInstance();
                     if (blockInstance != undefined) {
@@ -282,9 +320,8 @@ async function setBlock(block) {
                 }
                 const signal = await Patches.outputs.getPulse(patchProperty);
                 setPulseSubscription = signal.subscribe(async () => {
-                    if (isInstantiating) {
-                        await waitInstantiating();
-                    }
+                    if (block.hidden.pinLastValue()) return;
+                    await instantiatingFirst();
 
                     const blockInstance = getTargetInstance();
                     if (blockInstance != undefined) {
@@ -338,6 +375,10 @@ async function setBlock(block) {
             subscriptions = [];
         }
 
+        if (props.disable) {
+            return;
+        }
+
         const parent = await Scene.root.findFirst(props.parentName);
         if (parent == undefined) {
             throw `The parent dosen't be found: "${props.parentName}" of "${block.name}".`;
@@ -372,8 +413,8 @@ async function setBlock(block) {
             const instance = await getInstance();
             currentIndex = children.indexOf(instance);
             isInstantiating = false;
-            onInstantiate(instance);
             await Promise.all([
+                onInstantiate(instance),
                 (async () => {
                     const promises = props.inputs.split(',').map(i => setInputs(instance, props.prefix, i));
                     await Promise.all(promises);
@@ -398,6 +439,7 @@ async function setBlock(block) {
     };
 
     const signals = {
+        disable: block.hidden,
         blockName: blockName,
         parentName: parentName,
         inputs: inputs,
