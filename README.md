@@ -1,6 +1,6 @@
 # Cloner
 
-**Cloner** is a Spark AR tool for dynamically instantiating blocks without coding.
+**Cloner** is a Spark AR tool for dynamically instantiating blocks and controlling it without coding.
 
 
 
