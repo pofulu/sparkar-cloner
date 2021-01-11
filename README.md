@@ -10,7 +10,7 @@
 1. [Download Cloner.arblock](https://github.com/pofulu/sparkar-cloner/raw/master/ClonerDemo/blocks/Cloner/Cloner.arblock)
 2. Drag/Drop both of them to your Spark AR project.
 3. Add capability: `Project > Edit Properties > Capabilities > + > Scripting Dynamic Instantiation`
-4. You can also [Click Here to Download a Sample Project (v104.1)](https://raw.githubusercontent.com/pofulu/sparkar-cloner/master/ClonerDemo.arprojpkg).
+4. You can also [Click Here to Download a Sample Project (v104.1)](https://github.com/pofulu/sparkar-cloner/raw/master/CloneDemo.arprojpkg).
 
 
 
