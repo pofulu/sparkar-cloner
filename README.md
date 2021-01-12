@@ -16,7 +16,7 @@
 
 ## Usage 
 
-Drag the **Cloner Block** to Scene and set inputs, these are basic settings:
+![demo-basic](README.assets/demo-basic.gif)Drag the **Cloner Block** to Scene and set inputs, these are basic settings:
 
 | Inputs      | Type  | Description                                      |
 | ----------- | ----- | ------------------------------------------------ |
@@ -27,6 +27,7 @@ Drag the **Cloner Block** to Scene and set inputs, these are basic settings:
 
 
 
+![demo-control-pos](README.assets/demo-control-pos.gif)
 The following settings are used to control instance's **Transform**:
 
 | Inputs        | Type     | Description                                                  |
@@ -38,7 +39,9 @@ The following settings are used to control instance's **Transform**:
 
 
 
-You can even contorl the **Inputs** of instance block with following advanced setting:
+![demo-control-inputs](README.assets/demo-control-inputs.gif)
+
+You can control the **Inputs** of instance block with following advanced setting:
 
 | Inputs | Type | Description                                                  |
 | ------ | ---- | ------------------------------------------------------------ |
@@ -64,7 +67,7 @@ If you want to control the **Floaing**, **Frequency** and **Color B**, the map i
 Floating:b,Frequency:n,Color B:c
 ```
 
-And then you add the the following **To Script** varaibles:
+And then you need to add the the following **To Script** varaibles:
 
 1. **Floaing** with type `Boolean`
 
