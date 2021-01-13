@@ -46,7 +46,7 @@ You can control the **Inputs** of instance block with following advanced setting
 | Inputs | Type | Description                                                  |
 | ------ | ---- | ------------------------------------------------------------ |
 | Prefix | Text | The prefix of **To Script** varaible name.                   |
-| Inputs | Text | The map to bridge instance's **Inputs** to **To Script**. [Learn more](#Inputs Map). |
+| Inputs | Text | The map to bridge instance's **Inputs** to **To Script**. [Learn more](#inputs-map). |
 
 
 
