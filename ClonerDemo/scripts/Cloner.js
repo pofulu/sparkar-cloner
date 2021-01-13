@@ -2,7 +2,7 @@
  * @author Pofu Lu
  * @email pofu.lu@outlook.com
  * @create date 2021-01-10 22:48:00
- * @modify date 2021-01-11 23:27:29
+ * @modify date 2021-01-13 09:58:38
  * @desc v0.1.0
  */
 
@@ -51,6 +51,7 @@ async function setBlock(block) {
     let children = [];
     let currentIndex = 0;
     let isInstantiating = true;
+    let firstTime = true;
 
     const waitInstantiating = () => new Promise(resolve => {
         (function waitForFoo() {
@@ -112,9 +113,16 @@ async function setBlock(block) {
                 blockInstance.transform.rotationY = values.rotationY;
                 blockInstance.transform.rotationZ = values.rotationZ;
             }
+
         });
 
-        await new Promise(resovle => eventSource.take(1).subscribe(resovle));
+        await new Promise(resovle => eventSource.take(1).subscribe(() => {
+            if (firstTime) {
+                return lateUpdateSignalAsync(Time.ms).then(resovle);
+            } else {
+                resovle();
+            }
+        }));
     };
 
     const setInputs = async (instance, prefix, map) => {
@@ -421,6 +429,7 @@ async function setBlock(block) {
                 })(),
             ]);
             instance.hidden = false;
+            firstTime = false;
         });
 
         const clear_subscription = clear.subscribe(async () => {
