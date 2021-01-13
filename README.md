@@ -1,6 +1,13 @@
 # Cloner
 
-**Cloner** is a Spark AR tool for dynamically instantiating blocks and controlling it without coding.
+**Cloner** is a Spark AR tool for dynamically instantiating blocks and controlling them without coding.
+
+You can do the following things in Patch Editor:
+
+- Instantiate block
+- Clear all instantiated blocks
+- Control the position/ rotation/ scale of the instance by index
+- Bridge instance's Inputs to Patch Editor with [Inputs Map](#inputs-map)
 
 
 
@@ -18,12 +25,12 @@
 
 ![demo-basic](README.assets/demo-basic.gif)Drag the **Cloner Block** to Scene and set inputs, these are basic settings:
 
-| Inputs      | Type  | Description                                      |
-| ----------- | ----- | ------------------------------------------------ |
-| Instantiate | Pulse | Trigger this to create an instance.              |
-| Clear       | Pulse | Trigger this to clear all instance.              |
-| Block Name  | Text  | The name of the block to be instantiated.        |
-| Paretn Name | Text  | The name of the scene object that holds instance |
+| Inputs      | Type  | Description                                       |
+| ----------- | ----- | ------------------------------------------------- |
+| Instantiate | Pulse | Trigger this to create an instance.               |
+| Clear       | Pulse | Trigger this to clear all instance.               |
+| Block Name  | Text  | The name of the block to be instantiated.         |
+| Paretn Name | Text  | The name of the scene object that holds instance. |
 
 
 
@@ -67,14 +74,14 @@ If you want to control the **Floaing**, **Frequency** and **Color B**, the map i
 Floating:b,Frequency:n,Color B:c
 ```
 
-And then you need to add the the following **To Script** varaibles:
+And then you need to add the the following **To Script** variables:
 
 1. **Floaing** with type `Boolean`
 
 2. **Frequency** with type `Number`
 3. **Color_B** with type `Vector4`
 
-After restart, you can set these varaibles in Patch Editor.
+After restart, you can set these variables in Patch Editor.
 
 
 
