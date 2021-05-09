@@ -35,9 +35,9 @@ async function setBlock(block) {
     ] = await Promise.all([
         block.outputs.getString('Block Name'),
         block.outputs.getString('Parent Name'),
-        block.outputs.getPulse('Instantiate'),
-        block.outputs.getPulse('Clear'),
-        block.outputs.getPulse('Hide'),
+        block.outputs.getPulseOrFallback('Instantiate', Reactive.once()),
+        block.outputs.getPulseOrFallback('Clear', Reactive.once()),
+        block.outputs.getPulseOrFallback('Hide', Reactive.once()),
         block.outputs.getString('Prefix'),
         block.outputs.getString('Inputs'),
         block.outputs.getString('Outputs'),
