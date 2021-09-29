@@ -30,7 +30,7 @@ You can do the following things in Patch Editor:
 | Instantiate | Pulse | Trigger this to create an instance.               |
 | Clear       | Pulse | Trigger this to clear all instance.               |
 | Block Name  | Text  | The name of the block to be instantiated.         |
-| Paretn Name | Text  | The name of the scene object that holds instance. |
+| Parent Name | Text  | The name of the scene object that holds instance. |
 
 
 
